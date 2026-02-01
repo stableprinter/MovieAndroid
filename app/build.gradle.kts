@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.core.splashscreen)
     // Flutter engine from arr path (Flutter module built as AAR in arr/)
     debugImplementation("com.example.movie_core:flutter_debug:1.0")
     releaseImplementation("com.example.movie_core:flutter_release:1.0")
