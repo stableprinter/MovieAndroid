@@ -6,14 +6,33 @@ android {
     namespace = "com.movie.android"
     compileSdk = 36
 
+    buildFeatures {
+        buildConfig = true
+    }
+
+    sourceSets {
+        getByName("main") {
+            res.srcDir("src/ciBrand/res")
+        }
+    }
+
+
     defaultConfig {
-        applicationId = "com.movie.android"
+        applicationId = (project.findProperty("APP_ID") as String?) ?: "com.movie.android"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        resValue("string", "app_name", (project.findProperty("APP_NAME") as String?) ?: "Movie")
+
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"${(project.findProperty("BASE_URL") as String?) ?: "https://api.example.com/v1"}\""
+        )
 
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
