@@ -1,4 +1,5 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Splash screen theme shown at app launch. -->
     <style name="Theme.MovieAndroid.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_background</item>
@@ -19,5 +20,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <!-- Default font for all text. -->
+        <item name="android:fontFamily">@font/brand</item>
+        <item name="fontFamily">@font/brand</item>
     </style>
 </resources>
