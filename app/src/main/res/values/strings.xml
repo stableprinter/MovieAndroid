@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MovieAndroid</string>
+    <string name="nav_home">Browse</string>
+    <string name="nav_list">Favorite</string>
+</resources>

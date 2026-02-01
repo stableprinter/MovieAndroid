@@ -1,0 +1,173 @@
+{
+  "title": "Recreate Movie Android App in iOS (Swift)",
+  "description": "Specification for recreating the Android hybrid Flutter movie app as an iOS app",
+  "overview": {
+    "app_type": "hybrid native + Flutter",
+    "host": "native (Swift/UIKit)",
+    "flutter_integration": "Flutter module embedded as framework",
+    "engine_strategy": "multiple cached Flutter engines"
+  },
+  "architecture": {
+    "main_screen": {
+      "description": "Root view controller with bottom tab bar",
+      "tabs": [
+        { "id": "browse", "label": "Browse", "icon": "ic_nav_browse" },
+        { "id": "favorite", "label": "Favorite", "icon": "ic_nav_favorite" }
+      ],
+      "behavior": "Each tab hosts full-screen Flutter view; switching tabs swaps views without recreating engines"
+    },
+    "extra_screen": {
+      "description": "Extra screen (movie detail) launched when tapping a movie from Favorite list",
+      "engine": "dynamically created per navigation",
+      "disposal": "Engine removed from cache when screen is dismissed"
+    },
+    "flutter_frameworks": {
+      "import_from_mockup_path": true,
+      "no_flutter_project_creation": "Import pre-built XCFrameworks only",
+      "xcframework": {
+        "mockup_path": "<MOCKUP_PATH>/Flutter/",
+        "paths": {
+          "base": "$(PROJECT_DIR)/<MOCKUP_PATH>/Flutter/$(CONFIGURATION)/",
+          "debug": "<MOCKUP_PATH>/Flutter/Debug/Flutter.xcframework, <MOCKUP_PATH>/Flutter/Debug/App.xcframework",
+          "profile": "<MOCKUP_PATH>/Flutter/Profile/Flutter.xcframework, <MOCKUP_PATH>/Flutter/Profile/App.xcframework",
+          "release": "<MOCKUP_PATH>/Flutter/Release/Flutter.xcframework, <MOCKUP_PATH>/Flutter/Release/App.xcframework"
+        },
+        "required_frameworks": ["Flutter.xcframework", "App.xcframework"],
+        "framework_search_paths": "$(PROJECT_DIR)/<MOCKUP_PATH>/Flutter/$(CONFIGURATION)/",
+        "xcode_integration": {
+          "link_binary": "Add Flutter.xcframework and App.xcframework from mockup path",
+          "embed": "Embed & Sign dynamic frameworks"
+        },
+        "note": "Use Flutter.xcframework and App.xcframework from the same build mode. Mixing Debug/Release causes runtime crashes."
+      }
+    }
+  },
+  "flutter_engines": {
+    "group": "Use FlutterEngineGroup for multiple engines",
+    "cached": [
+      {
+        "id": "browse_engine",
+        "entrypoint": "mainBrowse",
+        "init_route": "/",
+        "args": ["apiToken", "userId"]
+      },
+      {
+        "id": "favorite_engine",
+        "entrypoint": "mainFavorite",
+        "init_route": "/",
+        "args": ["apiToken", "userId"]
+      }
+    ],
+    "dynamic": {
+      "id_format": "extra_engine_<unique_timestamp>",
+      "entrypoint": "mainBrowse",
+      "init_route_format": "/movie:true:<movieId>",
+      "args": ["apiToken", "userId"],
+      "created_when": "User taps movie in Favorite list",
+      "disposed_when": "Extra screen dismissed"
+    }
+  },
+  "method_channel": {
+    "name": "com.movie.android/channel",
+    "methods": [
+      {
+        "name": "getEngineId",
+        "allowed_engines": ["all"],
+        "returns": "Engine ID string",
+        "params": []
+      },
+      {
+        "name": "getPlatformVersion",
+        "allowed_engines": ["all"],
+        "returns": "iOS version string",
+        "params": []
+      },
+      {
+        "name": "navigateToMovieDetail",
+        "allowed_engines": ["favorite_engine"],
+        "returns": null,
+        "params": [
+          { "name": "movieId", "type": "Int" }
+        ],
+        "action": "Launches extra screen (movie detail) with new Flutter engine"
+      },
+      {
+        "name": "broadcastFavList",
+        "allowed_engines": ["favorite_engine"],
+        "returns": null,
+        "params": [
+          { "name": "movieIds", "type": "[Int]" }
+        ],
+        "action": "Sends list to Browse engine via EventChannel"
+      },
+      {
+        "name": "onToggleFavorite",
+        "allowed_engines": ["browse_engine", "extra_engine_*"],
+        "returns": null,
+        "params": [
+          { "name": "movieId", "type": "Int" }
+        ],
+        "action": "Sends shouldReloadFavorite event to Favorite engine"
+      }
+    ]
+  },
+  "event_channel": {
+    "name": "com.movie.android/events",
+    "payload_format": { "method": "string", "param": "any?" },
+    "events": [
+      {
+        "method": "broadcastFavList",
+        "target_engine": "browse_engine",
+        "param_type": "[Int]",
+        "description": "Favorite list movie IDs"
+      },
+      {
+        "method": "shouldReloadFavorite",
+        "target_engine": "favorite_engine",
+        "param_type": "Int",
+        "description": "Movie ID that was toggled"
+      }
+    ]
+  },
+  "constants": {
+    "engine_ids": {
+      "browse": "browse_engine",
+      "favorite": "favorite_engine",
+      "extra_prefix": "extra_engine"
+    },
+    "entrypoints": {
+      "browse": "mainBrowse",
+      "favorite": "mainFavorite"
+    },
+    "navigation": {
+      "movie_detail_route": "/movie:true:"
+    }
+  },
+  "app_config": {
+    "api_token": "JWT (hardcoded for dev)",
+    "user_id": "String user ID"
+  },
+  "ui": {
+    "main_screen": "Bottom tab bar with Browse and Favorite tabs",
+    "extra_screen": "Full-screen Flutter view (movie detail), no tab bar",
+    "back": "Back button or gesture returns from extra screen to Favorite"
+  },
+  "implementation_notes": [
+    "Browse and Favorite engines created once at app launch and kept alive",
+    "Extra engines created per movie navigation and disposed when closing extra screen",
+    "Method channel handler must check engineId to allow/disallow methods",
+    "EventChannel registry maps engine IDs to event sinks for cross-engine messaging",
+    "Channel names must exactly match Android: com.movie.android/channel, com.movie.android/events"
+  ],
+  "target_platform": {
+    "language": "Swift",
+    "ui_framework": "UIKit or SwiftUI with Flutter view controller hosting",
+    "flutter_embedding": "FlutterEngine, FlutterViewController, FlutterEngineGroup"
+  },
+  "deliverables": [
+    "iOS Xcode project that embeds the Flutter module",
+    "Swift code for FlutterEngineManager, MethodChannel, EventChannel",
+    "Storyboard or programmatic UI for main + extra (movie-detail) screens",
+    "Instructions for importing XCFrameworks from mockup path into iOS app"
+  ]
+}
