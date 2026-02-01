@@ -31,6 +31,19 @@ android {
 
         buildConfigField(
             "String",
+            "APP_NAME",
+            "\"${(project.findProperty("APP_NAME") as String?) ?: "Movie Debug"}\""
+        )
+
+        buildConfigField(
+            "String",
+            "IMAGE_BASE_URL",
+            "\"${(project.findProperty("IMAGE_BASE_URL") as String?) ?: "https://dev-cdn.local"}\""
+        )
+
+
+        buildConfigField(
+            "String",
             "BASE_URL",
             "\"${(project.findProperty("BASE_URL") as String?) ?: "https://api.example.com/v1"}\""
         )

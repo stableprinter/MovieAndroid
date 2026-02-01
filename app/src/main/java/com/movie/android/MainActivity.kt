@@ -9,6 +9,7 @@ import io.flutter.embedding.android.FlutterFragment
 import com.movie.android.channel.EventChannelRegistry
 import com.movie.android.channel.MethodChannelRegistry
 import com.movie.android.engine.FlutterEngineManager
+import io.flutter.BuildConfig
 
 class MainActivity : FragmentActivity() {
 
@@ -50,7 +51,10 @@ class MainActivity : FragmentActivity() {
                 args = listOf(
                     AppConfig.API_TOKEN,
                     AppConfig.USER_ID,
-                ),
+                    com.movie.android.BuildConfig.BASE_URL,
+                    com.movie.android.BuildConfig.APP_NAME,
+                    com.movie.android.BuildConfig.IMAGE_BASE_URL,
+                    ),
                 initRoute = "/movie:true:$movieId"
             )
             MethodChannelRegistry.register(engine, engineId)
