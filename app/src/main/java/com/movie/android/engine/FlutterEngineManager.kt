@@ -14,8 +14,8 @@ import com.movie.android.Constants
 class FlutterEngineManager(private val context: Context) {
 
     private var _engineGroup: FlutterEngineGroup? = null
-    private var _apiToken: String = ""
-    private var _userId: String = ""
+    /** Full app config passed to every engine before render. Set in [initialize]. */
+    private var _appConfigArgs: List<String> = emptyList()
 
     val engineGroup: FlutterEngineGroup
         get() = _engineGroup!!
@@ -27,11 +27,17 @@ class FlutterEngineManager(private val context: Context) {
         get() = FlutterEngineCache.getInstance().get(Constants.Engine.ID_FAVORITE)!!
 
     /**
-     * Initializes Flutter and creates both engines. Must be called before using engines.
+     * Initializes Flutter and creates both engines with full app config.
+     * Must be called before using engines. All engines receive the same config before render.
      */
-    fun initialize(apiToken: String, userId: String) {
-        _apiToken = apiToken
-        _userId = userId
+    fun initialize(
+        apiToken: String,
+        userId: String,
+        baseUrl: String,
+        appName: String,
+        imageBaseUrl: String
+    ) {
+        _appConfigArgs = listOf(apiToken, userId, baseUrl, appName, imageBaseUrl)
         val loader = FlutterLoader()
         loader.startInitialization(context)
         loader.ensureInitializationComplete(context, null)
@@ -42,36 +48,37 @@ class FlutterEngineManager(private val context: Context) {
         val browseEngine = createEngine(
             pathToBundle = pathToBundle,
             entrypoint = Constants.Navigation.ENTRY_BROWSE,
-            args = listOf(apiToken, userId),
+            args = _appConfigArgs,
             initRoute = "/"
         )
 
         val favoriteEngine = createEngine(
             pathToBundle = pathToBundle,
             entrypoint = Constants.Navigation.ENTRY_FAVORITE,
-            args = listOf(apiToken, userId),
+            args = _appConfigArgs,
             initRoute = "/"
         )
-
 
         FlutterEngineCache.getInstance().put(Constants.Engine.ID_BROWSE, browseEngine)
         FlutterEngineCache.getInstance().put(Constants.Engine.ID_FAVORITE, favoriteEngine)
     }
 
     /**
-     * Creates and caches an engine for ExtraActivity. The engine can display any Flutter view
-     * based on [entrypoint] and [args]. Uses [engineId] for cache key - must be unique per
-     * ExtraActivity instance to avoid race conditions when navigating quickly (each activity
-     * removes only its own engine on destroy).
+     * Creates and caches an engine for ExtraActivity with the same app config as browse/favorite.
+     * Uses [engineId] for cache key - must be unique per ExtraActivity instance.
+     * [initialize] must have been called first so config is set before this engine runs.
      */
-    fun createExtraEngine(engineId: String, entrypoint: String, initRoute: String, args: List<String>): FlutterEngine {
+    fun createExtraEngine(engineId: String, entrypoint: String, initRoute: String): FlutterEngine {
+        check(_appConfigArgs.isNotEmpty()) {
+            "FlutterEngineManager.initialize() must be called first so all engines have app config before render."
+        }
         val loader = FlutterLoader()
         loader.startInitialization(context)
         loader.ensureInitializationComplete(context, null)
         val engine = createEngine(
             pathToBundle = loader.findAppBundlePath(),
             entrypoint = entrypoint,
-            args = args,
+            args = _appConfigArgs,
             initRoute = initRoute
         )
         FlutterEngineCache.getInstance().put(engineId, engine)

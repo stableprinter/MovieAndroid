@@ -9,7 +9,6 @@ import io.flutter.embedding.android.FlutterFragment
 import com.movie.android.channel.EventChannelRegistry
 import com.movie.android.channel.MethodChannelRegistry
 import com.movie.android.engine.FlutterEngineManager
-import io.flutter.BuildConfig
 
 class MainActivity : FragmentActivity() {
 
@@ -29,7 +28,13 @@ class MainActivity : FragmentActivity() {
 
     private fun setupFlutterEngines() {
         engineManager = FlutterEngineManager(applicationContext)
-        engineManager.initialize(AppConfig.API_TOKEN, AppConfig.USER_ID)
+        engineManager.initialize(
+            AppConfig.API_TOKEN,
+            AppConfig.USER_ID,
+            com.movie.android.BuildConfig.BASE_URL,
+            com.movie.android.BuildConfig.APP_NAME,
+            com.movie.android.BuildConfig.IMAGE_BASE_URL
+        )
 
         MethodChannelRegistry.registerAll(
             browseEngine = engineManager.browseEngine,
@@ -48,13 +53,6 @@ class MainActivity : FragmentActivity() {
             val engine = engineManager.createExtraEngine(
                 engineId = engineId,
                 entrypoint = Constants.Navigation.ENTRY_BROWSE,
-                args = listOf(
-                    AppConfig.API_TOKEN,
-                    AppConfig.USER_ID,
-                    com.movie.android.BuildConfig.BASE_URL,
-                    com.movie.android.BuildConfig.APP_NAME,
-                    com.movie.android.BuildConfig.IMAGE_BASE_URL,
-                    ),
                 initRoute = "/movie:true:$movieId"
             )
             MethodChannelRegistry.register(engine, engineId)
