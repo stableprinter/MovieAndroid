@@ -1,14 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
 }
 
-val localProperties = java.util.Properties()
-rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use {
-    localProperties.load(it)
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 fun getConfig(key: String, default: String): String =
-    (project.findProperty(key) as String?) ?: localProperties.getProperty(key) ?: default
+    (project.findProperty(key) as String?)
+        ?: localProperties.getProperty(key)
+        ?: default
 
 android {
     namespace = "com.movie.android"
