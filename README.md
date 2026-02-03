@@ -106,6 +106,8 @@ The app initializes multiple Flutter engines on startup:
 
 Copy `local.properties.example` to `local.properties` and set `sdk.dir` to your Android SDK path. The optional `APP_ID`, `APP_NAME`, `BASE_URL`, and `IMAGE_BASE_URL` values can be overridden for local development.
 
+> **If changes to `local.properties` don't take effect**, run a clean build (`./gradlew clean build`) or use **File → Invalidate Caches** in Android Studio.
+
 ### Building
 
 ```bash
