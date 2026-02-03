@@ -100,6 +100,7 @@ The app initializes multiple Flutter engines on startup:
 - JDK 11+
 - Android SDK (API 24+)
 - Flutter SDK (for Flutter module development)
+- **Android Gradle Plugin (AGP) 9.0.0** — required for the project to build and run correctly
 
 ### Local Setup
 
