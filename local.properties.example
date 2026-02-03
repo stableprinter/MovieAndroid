@@ -1,0 +1,11 @@
+## Copy this file to local.properties and fill in your values.
+## local.properties is gitignored and should not be committed.
+#
+# Location of the SDK. This is only used by Gradle.
+sdk.dir=/path/to/your/Android/sdk
+
+# Mock config defaults (optional - for local dev / CI overrides)
+APP_ID=com.newmovie.android
+APP_NAME=New Movie Debug
+IMAGE_BASE_URL=https://image.tmdb.org/t/p/w500
+BASE_URL=https://api.themoviedb.org/3

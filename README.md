@@ -101,6 +101,10 @@ The app initializes multiple Flutter engines on startup:
 - Android SDK (API 24+)
 - Flutter SDK (for Flutter module development)
 
+### Local Setup
+
+Copy `local.properties.example` to `local.properties` and set `sdk.dir` to your Android SDK path. The optional `APP_ID`, `APP_NAME`, `BASE_URL`, and `IMAGE_BASE_URL` values can be overridden for local development.
+
 ### Building
 
 ```bash
