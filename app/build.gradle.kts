@@ -2,6 +2,14 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+val localProperties = java.util.Properties()
+rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use {
+    localProperties.load(it)
+}
+
+fun getConfig(key: String, default: String): String =
+    (project.findProperty(key) as String?) ?: localProperties.getProperty(key) ?: default
+
 android {
     namespace = "com.movie.android"
     compileSdk = 36
@@ -19,7 +27,7 @@ android {
 
 
     defaultConfig {
-        applicationId = (project.findProperty("APP_ID") as String?) ?: "com.movie.android"
+        applicationId = getConfig("APP_ID", "com.movie.android")
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -27,26 +35,13 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        resValue("string", "app_name", (project.findProperty("APP_NAME") as String?) ?: "Movie")
+        resValue("string", "app_name", getConfig("APP_NAME", "Movie"))
 
-        buildConfigField(
-            "String",
-            "APP_NAME",
-            "\"${(project.findProperty("APP_NAME") as String?) ?: "Movie Debug"}\""
-        )
+        buildConfigField("String", "APP_NAME", "\"${getConfig("APP_NAME", "Movie Debug")}\"")
 
-        buildConfigField(
-            "String",
-            "IMAGE_BASE_URL",
-            "\"${(project.findProperty("IMAGE_BASE_URL") as String?) ?: "https://dev-cdn.local"}\""
-        )
+        buildConfigField("String", "IMAGE_BASE_URL", "\"${getConfig("IMAGE_BASE_URL", "https://dev-cdn.local")}\"")
 
-
-        buildConfigField(
-            "String",
-            "BASE_URL",
-            "\"${(project.findProperty("BASE_URL") as String?) ?: "https://api.example.com/v1"}\""
-        )
+        buildConfigField("String", "BASE_URL", "\"${getConfig("BASE_URL", "https://api.example.com/v1")}\"")
 
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
