@@ -42,34 +42,6 @@ This super app acts as a **hosting platform** for multiple Flutter modules, prov
    - Image base URLs
    - Brand-specific resources (icons, colors, themes)
 
-
-### Branding Parameters
-
-All branding parameters can be injected via Gradle project properties for Jenkins builds. **All config can be mocked** by the [brand repository](https://github.com/stableprinter/brand), which provides corporate identity, app configuration, and build settings for multi-client builds.
-
-```bash
-./gradlew assembleRelease \
-  -PAPP_ID=com.client.movie \
-  -PAPP_NAME="Client Movie App" \
-  -PBASE_URL=https://api.client.com/v1 \
-  -PIMAGE_BASE_URL=https://cdn.client.com
-```
-
-### Available Parameters
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `APP_ID` | Application package ID | `com.movie.android` |
-| `APP_NAME` | Application display name | `Movie` |
-| `BASE_URL` | API base URL | `https://api.example.com/v1` |
-| `IMAGE_BASE_URL` | CDN base URL for images | `https://dev-cdn.local` |
-
-### Brand-Specific Resources
-
-Brand-specific resources (icons, splash screens, colors, themes) are loaded from:
-- `app/src/ciBrand/res/` - Injected at build time via Jenkins
-- [brand repository](https://github.com/stableprinter/brand) - All config and assets can be mocked here for staging/production environments
-
 ## Flutter Module Integration
 
 ### Engine Setup
@@ -109,9 +81,18 @@ The app initializes multiple Flutter engines on startup:
 - Flutter SDK (for Flutter module development)
 - **Android Gradle Plugin (AGP) 9.0.0** — required for the project to build and run correctly
 
-### Local Setup
 
-Copy `local.properties.example` to `local.properties` and set `sdk.dir` to your Android SDK path. The optional `APP_ID`, `APP_NAME`, `BASE_URL`, and `IMAGE_BASE_URL` values can be overridden for local development.
+#### Local development (`local.properties`)
+
+Copy `local.properties.example` to `local.properties` and set:
+- `sdk.dir` — your Android SDK path (required)
+- `APP_ID`, `APP_NAME`, `BASE_URL`, `IMAGE_BASE_URL` — optional overrides for local dev
+
+Use the [brand repository](https://github.com/stableprinter/brand) to mock config values in `local.properties` for multi-client builds.
+
+#### Brand-specific resources
+
+Find resources in the [brand repository](https://github.com/stableprinter/brand) (icons, splash screen, fonts, etc.) to replace everything here for a realistic mock.
 
 > **If changes to `local.properties` don't take effect**, run a clean build (`./gradlew clean build`) or use **File → Invalidate Caches** in Android Studio.
 
@@ -134,7 +115,7 @@ dependencies {
 ```
 
 **Format**: `groupId:artifactId:version`
-- `groupId`: Usually matches your Flutter module's package (e.g., `com.example.movie_core`)
+- `groupId`: Usually matches your Flutter core package (e.g., `com.example.movie_core`)
 - `artifactId`: Flutter module name (e.g., `flutter_debug`, `flutter_release`, `flutter_profile`)
 - `version`: Version number (e.g., `1.0`)
 
