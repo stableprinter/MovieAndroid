@@ -2,6 +2,12 @@
 
 An Android super app that serves as a container for rendering Flutter modules and facilitating inter-module communication via method and event channels. This app is designed with minimal business logic, focusing solely on Flutter engine management and UI switching.
 
+## Screenshots
+
+| ![1](screenshots/1.png) | ![2](screenshots/2.png) |
+|---|---|
+| ![3](screenshots/3.png) | ![4](screenshots/4.png) |
+
 ## Overview
 
 This super app acts as a **hosting platform** for multiple Flutter modules, providing:
@@ -39,7 +45,7 @@ This super app acts as a **hosting platform** for multiple Flutter modules, prov
 
 ### Branding Parameters
 
-All branding parameters can be injected via Gradle project properties for Jenkins builds:
+All branding parameters can be injected via Gradle project properties for Jenkins builds. **All config can be mocked** by the [brand repository](https://github.com/stableprinter/brand), which provides corporate identity, app configuration, and build settings for multi-client builds.
 
 ```bash
 ./gradlew assembleRelease \
@@ -62,6 +68,7 @@ All branding parameters can be injected via Gradle project properties for Jenkin
 
 Brand-specific resources (icons, splash screens, colors, themes) are loaded from:
 - `app/src/ciBrand/res/` - Injected at build time via Jenkins
+- [brand repository](https://github.com/stableprinter/brand) - All config and assets can be mocked here for staging/production environments
 
 ## Flutter Module Integration
 
@@ -108,26 +115,9 @@ Copy `local.properties.example` to `local.properties` and set `sdk.dir` to your 
 
 > **If changes to `local.properties` don't take effect**, run a clean build (`./gradlew clean build`) or use **File → Invalidate Caches** in Android Studio.
 
-### Building
-
-```bash
-# Debug build
-./gradlew assembleDebug
-
-# Release build
-./gradlew assembleRelease
-
-# With custom branding (for Jenkins)
-./gradlew assembleRelease \
-  -PAPP_ID=com.client.movie \
-  -PAPP_NAME="Client App" \
-  -PBASE_URL=https://api.client.com/v1 \
-  -PIMAGE_BASE_URL=https://cdn.client.com
-```
-
 ### Flutter Module Dependencies
 
-Flutter modules are included as AAR artifacts. To edit the Flutter AAR paths:
+Flutter modules are included as AAR artifacts. **Configure the Flutter AAR paths before building** — otherwise the build will fail. To edit the Flutter AAR paths:
 
 #### 1. Edit AAR Dependency Coordinates
 
@@ -179,3 +169,20 @@ maven {
 
 **For Jenkins CI/CD**:
 - Set `MOVIE_CORE_MAVEN_REPO` environment variable to the path where Flutter AARs are published
+
+### Building
+
+```bash
+# Debug build
+./gradlew assembleDebug
+
+# Release build
+./gradlew assembleRelease
+
+# With custom branding (for Jenkins)
+./gradlew assembleRelease \
+  -PAPP_ID=com.client.movie \
+  -PAPP_NAME="Client App" \
+  -PBASE_URL=https://api.client.com/v1 \
+  -PIMAGE_BASE_URL=https://cdn.client.com
+```
